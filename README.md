@@ -3,6 +3,7 @@
 - gtfs timetable used: DELFI gtfs germany (21.07.2025)
 - osm used: geofabrik osm germany (21.07.2025)
 - motis config: see config.yml in this repo
+- set availability in prima: 04.08.25 - 10.08.25, 1 Taxi, all day (03:00 - 00:00)
 
 generate queries:
 
