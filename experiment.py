@@ -3,7 +3,7 @@ import requests
 from tqdm import tqdm
 
 motis_url = 'http://localhost:6499'
-qf_path = ''
+qf_path = 'queries.txt'
 rf_path = 'responses.txt'
 
 if os.path.isfile(rf_path):
@@ -16,6 +16,6 @@ with open(qf_path, 'r') as qf:
         n_queries += 1
 
 with open(qf_path, 'r') as qf, open(rf_path, 'a') as rf:
-    for i, q in enumerate(tqdm(qf, total=n_queries)):
+    for q in tqdm(qf, total=n_queries):
         r = requests.get(motis_url + q)
         rf.write(str(r.content) + '\n')
