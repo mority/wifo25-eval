@@ -1,6 +1,7 @@
 server:
   port: 6499
   web_folder: /home/mority/code/motis/ui/build
+  n_threads: 2
 osm: /home/mority/data/germany-latest.osm.pbf
 tiles:
   profile: /home/mority/code/motis/deps/tiles/profile/full.lua
