@@ -21,9 +21,6 @@ df['Gesamtzeit'] = df['Mixing'] + df['2. Verfügbarkeitsprüfung'] + df['ÖV-Rou
 
 df.sort_values(by='Gesamtzeit', ignore_index=True, inplace=True)
 
-print(df["ÖV-Routing"])
-print(df["Gesamtzeit"])
-
 fig = px.bar(df, y=['Mixing', '2. Verfügbarkeitsprüfung', 'ÖV-Routing', '1. Verfügbarkeitsprüfung', 'Offset-Routing'])
 fig.update_layout(xaxis_title="Anfragen", xaxis_visible=False, yaxis_title="Wall-Time [ms]",
                   legend_title="Abschnitt",
