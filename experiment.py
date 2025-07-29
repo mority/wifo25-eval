@@ -3,7 +3,7 @@ import requests
 from tqdm import tqdm
 
 motis_url = 'http://localhost:6499'
-qf_path = 'queries-only-one.txt'
+qf_path = 'queries.txt'
 rf_path = 'responses.txt'
 
 if os.path.isfile(rf_path):
