@@ -3,6 +3,9 @@ import pandas as pd
 import math
 import plotly.express as px
 import plotly.graph_objects as go
+import plotly.io as pio
+
+pio.templates.default = 'plotly_white'
 
 data = []
 
@@ -23,17 +26,18 @@ quantile_text = ['25%', '50%', '75%', '90%', '99%']
 
 df['query_id'] = list(range(len(df.index)))
 df['Gesamtzeit'] = df['Mixing'] + df['2. Verfügbarkeitsprüfung'] + df['ÖV-Routing'] + df['1. Verfügbarkeitsprüfung'] + \
-                   df[
-                       'Offset-Routing']
+    df['Offset-Routing']
 
 print('Responses without time since direct walk is below threshold of 5 minutes: {}'.format(
     pd.isnull(df['Gesamtzeit']).sum()))
-print('Therefore, n is {}'.format(len(df.index) - pd.isnull(df['Gesamtzeit']).sum()))
+print('Therefore, n is {}'.format(
+    len(df.index) - pd.isnull(df['Gesamtzeit']).sum()))
 
-# Stacked Bar Plot
+
+""" # Stacked Bar Plot
 df.sort_values(by='Gesamtzeit', ignore_index=True, inplace=True)
-fig = px.bar(df, y=['Mixing', '2. Verfügbarkeitsprüfung', 'ÖV-Routing', '1. Verfügbarkeitsprüfung', 'Offset-Routing'])
-fig.update_layout(bargap=0, xaxis_title="Anfragen Quantile", xaxis_tickmode='array',
+stacked_bar = px.bar(df, y=['Mixing', '2. Verfügbarkeitsprüfung', 'ÖV-Routing', '1. Verfügbarkeitsprüfung', 'Offset-Routing'])
+stacked_bar.update_layout(bargap=0, xaxis_title="Anfragen Quantile", xaxis_tickmode='array',
                   xaxis_tickvals=quantile_index,
                   xaxis_ticktext=quantile_text, xaxis_ticks='outside', yaxis_title="Wall-Time [ms]", yaxis_dtick=1000,
                   legend=dict(
@@ -44,20 +48,52 @@ fig.update_layout(bargap=0, xaxis_title="Anfragen Quantile", xaxis_tickmode='arr
                       xanchor="left",
                       x=0.01
                   ))
-fig.show()
+stacked_bar.show() """
 
-# Violin Plots
-fig = go.Figure()
+
+""" # Violin Plots
 violin_keys = ['Gesamtzeit', 'Offset-Routing', '1. Verfügbarkeitsprüfung', 'ÖV-Routing', '2. Verfügbarkeitsprüfung',
                'Mixing']
+violins = go.Figure()
 for k in violin_keys:
     df.sort_values(by=k, ignore_index=True, inplace=True)
     print('{} quantiles:'.format(k))
     print(df[k].quantile(quantiles))
-    fig.add_trace(go.Violin(y=df[k], name=k, box_visible=True, meanline_visible=True))
+    violins.add_trace(go.Violin(y=df[k], name=k, box_visible=True, meanline_visible=True))
+violins.update_layout(yaxis_title="Wall-Time [ms]", showlegend=False)
+violins.show() """
 
-fig.update_layout(yaxis_title="Wall-Time [ms]", showlegend=False)
-fig.show()
 
-# Line Plot
-fig = go.Figure()
+scatter_symbols = ['diamond', 'square', 'circle', 'triangle-up', 'x']
+
+# scatter plot absolute
+df.sort_values(by='Gesamtzeit', ignore_index=True, inplace=True)
+scatter_absolute_keys = ['Offset-Routing', '1. Verfügbarkeitsprüfung', 'ÖV-Routing', '2. Verfügbarkeitsprüfung',
+                         'Mixing']
+scatter_absolute = go.Figure()
+for k, s in zip(scatter_absolute_keys, scatter_symbols):
+    scatter_absolute.add_trace(go.Scatter(
+        name=k, mode='markers', x=df['Gesamtzeit'], y=df[k], marker=dict(symbol=s)))
+scatter_absolute.update_layout(
+    font=dict(family='Arial', size=14), yaxis_title="Zeit in Abschnitt [ms]", xaxis_title="Gesamte Wall-Time [ms]", legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01))
+scatter_absolute.show()
+
+# get relative times
+df['Offset-Routing %'] = df['Offset-Routing'] / df['Gesamtzeit'] * 100
+df['1. Verfügbarkeitsprüfung %'] = df['1. Verfügbarkeitsprüfung'] / \
+    df['Gesamtzeit'] * 100
+df['ÖV-Routing %'] = df['ÖV-Routing'] / df['Gesamtzeit'] * 100
+df['2. Verfügbarkeitsprüfung %'] = df['2. Verfügbarkeitsprüfung'] / \
+    df['Gesamtzeit'] * 100
+df['Mixing %'] = df['Mixing'] / df['Gesamtzeit'] * 100
+
+# scatter plot relative
+scatter_relative_keys = ['Offset-Routing %', '1. Verfügbarkeitsprüfung %', 'ÖV-Routing %', '2. Verfügbarkeitsprüfung %',
+                         'Mixing %']
+scatter_relative = go.Figure()
+for k, s in zip(scatter_relative_keys, scatter_symbols):
+    scatter_relative.add_trace(go.Scatter(
+        name=k, mode='markers', x=df['Gesamtzeit'], y=df[k], marker=dict(symbol=s)))
+scatter_relative.update_layout(
+    yaxis_title='Anteil in %', xaxis_title="Gesamte Wall-Time [ms]", legend=dict(yanchor="top", y=.5, xanchor="right", x=.99))
+scatter_relative.show()
