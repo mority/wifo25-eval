@@ -116,3 +116,6 @@ for k in relative_keys:
         go.Violin(y=df[k], name=k, box_visible=True, meanline_visible=True))
 violin_relative.update_layout(yaxis_title='Anteil in %', showlegend=False)
 violin_relative.show()
+
+for c in list(df.columns):
+    print(c)
