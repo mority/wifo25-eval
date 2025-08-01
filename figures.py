@@ -117,5 +117,40 @@ for k in relative_keys:
 violin_relative.update_layout(yaxis_title='Anteil in %', showlegend=False)
 violin_relative.show()
 
+# taxi rides per section
+df['n_taxis_init'] = df['init_direct_odm_rides'] + \
+    df['init_first_mile_odm_rides'] + df['init_last_mile_odm_rides']
+df['n_taxis_blacklist'] = df['blacklist_direct_odm_rides'] + \
+    df['blacklist_first_mile_odm_rides'] + df['blacklist_last_mile_odm_rides']
+df['n_taxis_routing'] = df['routing_direct_odm_rides'] + \
+    df['routing_first_mile_odm_rides'] + df['routing_last_mile_odm_rides']
+df['n_taxis_whitelist'] = df['whitelist_direct_odm_rides'] + \
+    df['whitelist_first_mile_odm_rides'] + df['whitelist_last_mile_odm_rides']
+taxi_section_keys = ['n_taxis_init', 'n_taxis_blacklist',
+                     'n_taxis_routing', 'n_taxis_whitelist']
+taxi_section_names = ['Initial', '1. Verfügbark.', 'Routing', '2. Verfügbark.']
+violin_taxis = go.Figure()
+for i, k in enumerate(taxi_section_keys):
+    violin_taxis.add_trace(go.Violin(y=df[k], name=taxi_section_names[i],
+                                     box_visible=True, meanline_visible=True))
+violin_taxis.update_layout(
+    yaxis_title='Anzahl Taxifahrten', showlegend=False)
+violin_taxis.show()
+
+# time per taxiride
+df['bl_per_taxi'] = df['1. Verfügbarkeitsprüfung'] / \
+    df['n_taxis_init'] * 1000
+df['wl_per_taxi'] = df['2. Verfügbarkeitsprüfung'] / \
+    df['n_taxis_routing'] * 1000
+per_taxi_keys = ['bl_per_taxi', 'wl_per_taxi']
+per_taxi_names = ['1. Verfügbarkeitsprüfung', '2. Verfügbarkeitsprüfung']
+violin_per_taxi = go.Figure()
+for i, k in enumerate(per_taxi_keys):
+    violin_per_taxi.add_trace(go.Violin(
+        y=df[k], name=per_taxi_names[i], box_visible=True, meanline_visible=True))
+violin_per_taxi.update_layout(
+    yaxis_title='Zeit pro angefragtem Taxi [µs]', showlegend=False)
+violin_per_taxi.show()
+
 for c in list(df.columns):
     print(c)
