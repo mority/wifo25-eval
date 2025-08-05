@@ -81,14 +81,6 @@ scatter_absolute.update_layout(
     font=dict(family='Arial', size=14), yaxis_title="Zeit in Abschnitt [ms]", xaxis_title="Gesamte Wall-Time [ms]", legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01))
 scatter_absolute.show()
 
-# violin plot absolute
-violin_absolute = go.Figure()
-for k in absolute_keys:
-    violin_absolute.add_trace(
-        go.Violin(y=df[k], name=k, box_visible=True, meanline_visible=True))
-violin_absolute.update_layout(yaxis_title='Wall-Time [ms]', showlegend=False)
-violin_absolute.show()
-
 # get relative times
 df['Offset-Routing %'] = df['Offset-Routing'] / df['Gesamtzeit'] * 100
 df['1. Verfügbarkeitsprüfung %'] = df['1. Verfügbarkeitsprüfung'] / \
@@ -108,14 +100,6 @@ for k, s in zip(relative_keys, scatter_symbols):
 scatter_relative.update_layout(
     yaxis_title='Anteil in %', xaxis_title="Gesamte Wall-Time [ms]", legend=dict(yanchor="top", y=.5, xanchor="right", x=.99))
 scatter_relative.show()
-
-# violin plot relative
-violin_relative = go.Figure()
-for k in relative_keys:
-    violin_relative.add_trace(
-        go.Violin(y=df[k], name=k, box_visible=True, meanline_visible=True))
-violin_relative.update_layout(yaxis_title='Anteil in %', showlegend=False)
-violin_relative.show()
 
 # taxi rides per section
 df['n_taxis_init'] = df['init_direct_odm_rides'] + \
