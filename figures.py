@@ -60,6 +60,24 @@ scatter_symbols = ['diamond', 'square', 'circle', 'triangle-up', 'x']
 df['bl_per_taxi'] = df['1. Verfügbarkeitsprüfung'] / df['n_taxis_init']
 df['wl_per_taxi'] = df['2. Verfügbarkeitsprüfung'] / df['n_taxis_routing']
 
+itineraries = []
+for row in df.itertuples():
+    itineraries += row.itineraries
+df_itineraries = pd.DataFrame(itineraries)
+df_itineraries['uses_taxi'] = False
+
+
+def set_uses_taxi(row):
+    for leg in row['legs']:
+        if leg['mode'] == 'ODM':
+            row['uses_taxi'] = True
+            break
+
+
+# df_itineraries = df_itineraries.apply(set_uses_taxi, axis=1)
+print(df_itineraries.apply(set_uses_taxi, axis=1))
+print(df_itineraries['uses_taxi'].value_counts())
+
 
 def walltime_stacked_bar():
     df.sort_values(by='Gesamtzeit', ignore_index=True, inplace=True)
@@ -152,5 +170,4 @@ def walltime_per_taxi_ride():
 # for c in list(df.columns):
 #     print(c)
 
-
-print(df.loc[1, 'itineraries'])
+print(len(df.loc[1, 'itineraries']))
