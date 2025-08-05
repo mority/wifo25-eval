@@ -3,6 +3,7 @@ import pandas as pd
 import math
 import plotly.express as px
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import plotly.io as pio
 
 pio.templates.default = 'plotly_white'
@@ -34,7 +35,7 @@ print('Therefore, n is {}'.format(
     len(df.index) - pd.isnull(df['Gesamtzeit']).sum()))
 
 
-# Stacked Bar Plot
+# walltime stacked bar
 df.sort_values(by='Gesamtzeit', ignore_index=True, inplace=True)
 stacked_bar = px.bar(df, y=['Mixing', '2. Verfügbarkeitsprüfung',
                      'ÖV-Routing', '1. Verfügbarkeitsprüfung', 'Offset-Routing'])
@@ -52,7 +53,7 @@ stacked_bar.update_layout(bargap=0, xaxis_title="Anfragen Quantile", xaxis_tickm
 stacked_bar.show()
 
 
-# Violin Plots
+# walltime violin plots
 violin_keys = ['Gesamtzeit', 'Offset-Routing', '1. Verfügbarkeitsprüfung', 'ÖV-Routing', '2. Verfügbarkeitsprüfung',
                'Mixing']
 violins = go.Figure()
@@ -71,7 +72,7 @@ scatter_symbols = ['diamond', 'square', 'circle', 'triangle-up', 'x']
 absolute_keys = ['Offset-Routing', '1. Verfügbarkeitsprüfung', 'ÖV-Routing', '2. Verfügbarkeitsprüfung',
                  'Mixing']
 
-# scatter plot absolute
+# absolute section time scatter
 df.sort_values(by='Gesamtzeit', ignore_index=True, inplace=True)
 scatter_absolute = go.Figure()
 for k, s in zip(absolute_keys, scatter_symbols):
@@ -92,7 +93,7 @@ df['Mixing %'] = df['Mixing'] / df['Gesamtzeit'] * 100
 relative_keys = ['Offset-Routing %', '1. Verfügbarkeitsprüfung %', 'ÖV-Routing %', '2. Verfügbarkeitsprüfung %',
                  'Mixing %']
 
-# scatter plot relative
+# relative section times scatter
 scatter_relative = go.Figure()
 for k, s in zip(relative_keys, scatter_symbols):
     scatter_relative.add_trace(go.Scatter(
@@ -101,7 +102,7 @@ scatter_relative.update_layout(
     yaxis_title='Anteil in %', xaxis_title="Gesamte Wall-Time [ms]", legend=dict(yanchor="top", y=.5, xanchor="right", x=.99))
 scatter_relative.show()
 
-# taxi rides per section
+# taxi rides per section violin
 df['n_taxis_init'] = df['init_direct_odm_rides'] + \
     df['init_first_mile_odm_rides'] + df['init_last_mile_odm_rides']
 df['n_taxis_blacklist'] = df['blacklist_direct_odm_rides'] + \
@@ -110,13 +111,15 @@ df['n_taxis_routing'] = df['routing_direct_odm_rides'] + \
     df['routing_first_mile_odm_rides'] + df['routing_last_mile_odm_rides']
 df['n_taxis_whitelist'] = df['whitelist_direct_odm_rides'] + \
     df['whitelist_first_mile_odm_rides'] + df['whitelist_last_mile_odm_rides']
-taxi_section_keys = ['n_taxis_init', 'n_taxis_blacklist',
-                     'n_taxis_routing', 'n_taxis_whitelist']
-taxi_section_names = ['Initial', '1. Verfügbark.', 'Routing', '2. Verfügbark.']
-violin_taxis = go.Figure()
-for i, k in enumerate(taxi_section_keys):
-    violin_taxis.add_trace(go.Violin(y=df[k], name=taxi_section_names[i],
-                                     box_visible=True, meanline_visible=True))
+violin_taxis = make_subplots(rows=1, cols=2)
+violin_taxis.add_trace(go.Violin(
+    y=df['n_taxis_init'], name='Initial', box_visible=True, meanline_visible=True), row=1, col=1)
+violin_taxis.add_trace(go.Violin(
+    y=df['n_taxis_blacklist'], name='1. Verfügbark.', box_visible=True, meanline_visible=True), row=1, col=1)
+violin_taxis.add_trace(go.Violin(
+    y=df['n_taxis_routing'], name='Routing', box_visible=True, meanline_visible=True), row=1, col=2)
+violin_taxis.add_trace(go.Violin(
+    y=df['n_taxis_whitelist'], name='2. Verfügbark.', box_visible=True, meanline_visible=True), row=1, col=2)
 violin_taxis.update_layout(
     yaxis_title='Anzahl Taxifahrten', showlegend=False)
 violin_taxis.show()
@@ -126,12 +129,11 @@ df['bl_per_taxi'] = df['1. Verfügbarkeitsprüfung'] / \
     df['n_taxis_init'] * 1000
 df['wl_per_taxi'] = df['2. Verfügbarkeitsprüfung'] / \
     df['n_taxis_routing'] * 1000
-per_taxi_keys = ['bl_per_taxi', 'wl_per_taxi']
-per_taxi_names = ['1. Verfügbarkeitsprüfung', '2. Verfügbarkeitsprüfung']
-violin_per_taxi = go.Figure()
-for i, k in enumerate(per_taxi_keys):
-    violin_per_taxi.add_trace(go.Violin(
-        y=df[k], name=per_taxi_names[i], box_visible=True, meanline_visible=True))
+violin_per_taxi = make_subplots(rows=1, cols=2)
+violin_per_taxi.add_trace(go.Violin(
+    y=df['bl_per_taxi'], name='1. Verfügbarkeitsprüfung', box_visible=True, meanline_visible=True), row=1, col=1)
+violin_per_taxi.add_trace(go.Violin(
+    y=df['wl_per_taxi'], name='2. Verfügbarkeitsprüfung', box_visible=True, meanline_visible=True), row=1, col=2)
 violin_per_taxi.update_layout(
     yaxis_title='Zeit pro angefragtem Taxi [µs]', showlegend=False)
 violin_per_taxi.show()
