@@ -34,55 +34,6 @@ print('Responses without time since direct walk is below threshold of 5 minutes:
 print('Therefore, n is {}'.format(
     len(df.index) - pd.isnull(df['Gesamtzeit']).sum()))
 
-
-# walltime stacked bar
-df.sort_values(by='Gesamtzeit', ignore_index=True, inplace=True)
-stacked_bar = px.bar(df, y=['Mixing', '2. Verfügbarkeitsprüfung',
-                     'ÖV-Routing', '1. Verfügbarkeitsprüfung', 'Offset-Routing'])
-stacked_bar.update_layout(bargap=0, xaxis_title="Anfragen Quantile", xaxis_tickmode='array',
-                          xaxis_tickvals=quantile_index,
-                          xaxis_ticktext=quantile_text, xaxis_ticks='outside', yaxis_title="Wall-Time [ms]", yaxis_dtick=1000,
-                          legend=dict(
-                              title="Abschnitt",
-                              traceorder="reversed",
-                              yanchor="top",
-                              y=0.99,
-                              xanchor="left",
-                              x=0.01
-                          ))
-stacked_bar.show()
-
-
-# walltime violin plots
-violin_keys = ['Gesamtzeit', 'Offset-Routing', '1. Verfügbarkeitsprüfung', 'ÖV-Routing', '2. Verfügbarkeitsprüfung',
-               'Mixing']
-violins = go.Figure()
-for k in violin_keys:
-    df.sort_values(by=k, ignore_index=True, inplace=True)
-    print('{} quantiles:'.format(k))
-    print(df[k].quantile(quantiles))
-    violins.add_trace(
-        go.Violin(y=df[k], name=k, box_visible=True, meanline_visible=True))
-violins.update_layout(yaxis_title="Wall-Time [ms]", showlegend=False)
-violins.show()
-
-
-scatter_symbols = ['diamond', 'square', 'circle', 'triangle-up', 'x']
-
-absolute_keys = ['Offset-Routing', '1. Verfügbarkeitsprüfung', 'ÖV-Routing', '2. Verfügbarkeitsprüfung',
-                 'Mixing']
-
-# absolute section time scatter
-df.sort_values(by='Gesamtzeit', ignore_index=True, inplace=True)
-scatter_absolute = go.Figure()
-for k, s in zip(absolute_keys, scatter_symbols):
-    scatter_absolute.add_trace(go.Scatter(
-        name=k, mode='markers', x=df['Gesamtzeit'], y=df[k], marker=dict(symbol=s)))
-scatter_absolute.update_layout(
-    font=dict(family='Arial', size=14), yaxis_title="Zeit in Abschnitt [ms]", xaxis_title="Gesamte Wall-Time [ms]", legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01))
-scatter_absolute.show()
-
-# get relative times
 df['Offset-Routing %'] = df['Offset-Routing'] / df['Gesamtzeit'] * 100
 df['1. Verfügbarkeitsprüfung %'] = df['1. Verfügbarkeitsprüfung'] / \
     df['Gesamtzeit'] * 100
@@ -93,50 +44,113 @@ df['Mixing %'] = df['Mixing'] / df['Gesamtzeit'] * 100
 relative_keys = ['Offset-Routing %', '1. Verfügbarkeitsprüfung %', 'ÖV-Routing %', '2. Verfügbarkeitsprüfung %',
                  'Mixing %']
 
-# relative section times scatter
-scatter_relative = go.Figure()
-for k, s in zip(relative_keys, scatter_symbols):
-    scatter_relative.add_trace(go.Scatter(
-        name=k, mode='markers', x=df['Gesamtzeit'], y=df[k], marker=dict(symbol=s)))
-scatter_relative.update_layout(
-    yaxis_title='Anteil in %', xaxis_title="Gesamte Wall-Time [ms]", legend=dict(yanchor="top", y=.5, xanchor="right", x=.99))
-scatter_relative.show()
-
-# taxi rides per section violin
 df['n_taxis_init'] = df['init_direct_odm_rides'] + \
     df['init_first_mile_odm_rides'] + df['init_last_mile_odm_rides']
 df['n_taxis_blacklist'] = df['blacklist_direct_odm_rides'] + \
-    df['blacklist_first_mile_odm_rides'] + df['blacklist_last_mile_odm_rides']
+    df['blacklist_first_mile_odm_rides'] + \
+    df['blacklist_last_mile_odm_rides']
 df['n_taxis_routing'] = df['routing_direct_odm_rides'] + \
     df['routing_first_mile_odm_rides'] + df['routing_last_mile_odm_rides']
 df['n_taxis_whitelist'] = df['whitelist_direct_odm_rides'] + \
-    df['whitelist_first_mile_odm_rides'] + df['whitelist_last_mile_odm_rides']
-violin_taxis = make_subplots(rows=1, cols=2)
-violin_taxis.add_trace(go.Violin(
-    y=df['n_taxis_init'], name='Initial', box_visible=True, meanline_visible=True), row=1, col=1)
-violin_taxis.add_trace(go.Violin(
-    y=df['n_taxis_blacklist'], name='1. Verfügbark.', box_visible=True, meanline_visible=True), row=1, col=1)
-violin_taxis.add_trace(go.Violin(
-    y=df['n_taxis_routing'], name='Routing', box_visible=True, meanline_visible=True), row=1, col=2)
-violin_taxis.add_trace(go.Violin(
-    y=df['n_taxis_whitelist'], name='2. Verfügbark.', box_visible=True, meanline_visible=True), row=1, col=2)
-violin_taxis.update_layout(
-    yaxis_title='Anzahl Taxifahrten', showlegend=False)
-violin_taxis.show()
+    df['whitelist_first_mile_odm_rides'] + \
+    df['whitelist_last_mile_odm_rides']
 
-# time per taxiride
-df['bl_per_taxi'] = df['1. Verfügbarkeitsprüfung'] / \
-    df['n_taxis_init'] * 1000
-df['wl_per_taxi'] = df['2. Verfügbarkeitsprüfung'] / \
-    df['n_taxis_routing'] * 1000
-violin_per_taxi = make_subplots(rows=1, cols=2)
-violin_per_taxi.add_trace(go.Violin(
-    y=df['bl_per_taxi'], name='1. Verfügbarkeitsprüfung', box_visible=True, meanline_visible=True), row=1, col=1)
-violin_per_taxi.add_trace(go.Violin(
-    y=df['wl_per_taxi'], name='2. Verfügbarkeitsprüfung', box_visible=True, meanline_visible=True), row=1, col=2)
-violin_per_taxi.update_layout(
-    yaxis_title='Zeit pro angefragtem Taxi [µs]', showlegend=False)
-violin_per_taxi.show()
+scatter_symbols = ['diamond', 'square', 'circle', 'triangle-up', 'x']
 
-for c in list(df.columns):
-    print(c)
+df['bl_per_taxi'] = df['1. Verfügbarkeitsprüfung'] / df['n_taxis_init']
+df['wl_per_taxi'] = df['2. Verfügbarkeitsprüfung'] / df['n_taxis_routing']
+
+
+def walltime_stacked_bar():
+    df.sort_values(by='Gesamtzeit', ignore_index=True, inplace=True)
+    stacked_bar = px.bar(df, y=['Mixing', '2. Verfügbarkeitsprüfung',
+                                'ÖV-Routing', '1. Verfügbarkeitsprüfung', 'Offset-Routing'])
+    stacked_bar.update_layout(bargap=0, xaxis_title="Anfragen Quantile", xaxis_tickmode='array',
+                              xaxis_tickvals=quantile_index,
+                              xaxis_ticktext=quantile_text, xaxis_ticks='outside', yaxis_title="Wall-Time [ms]", yaxis_dtick=1000,
+                              legend=dict(
+                                  title="Abschnitt",
+                                  traceorder="reversed",
+                                  yanchor="top",
+                                  y=0.99,
+                                  xanchor="left",
+                                  x=0.01
+                              ))
+    stacked_bar.show()
+
+
+def walltime_violin():
+    violin_keys = ['Gesamtzeit', 'Offset-Routing', '1. Verfügbarkeitsprüfung', 'ÖV-Routing', '2. Verfügbarkeitsprüfung',
+                   'Mixing']
+    violins = go.Figure()
+    for k in violin_keys:
+        df.sort_values(by=k, ignore_index=True, inplace=True)
+        print('{} quantiles:'.format(k))
+        print(df[k].quantile(quantiles))
+        violins.add_trace(
+            go.Violin(y=df[k], name=k, box_visible=True, meanline_visible=True))
+    violins.update_layout(yaxis_title="Wall-Time [ms]", showlegend=False)
+    violins.show()
+
+
+def absolute_section_time_scatter():
+    absolute_keys = ['Offset-Routing', '1. Verfügbarkeitsprüfung', 'ÖV-Routing', '2. Verfügbarkeitsprüfung',
+                     'Mixing']
+    df.sort_values(by='Gesamtzeit', ignore_index=True, inplace=True)
+    scatter_absolute = go.Figure()
+    for k, s in zip(absolute_keys, scatter_symbols):
+        scatter_absolute.add_trace(go.Scatter(
+            name=k, mode='markers', x=df['Gesamtzeit'], y=df[k], marker=dict(symbol=s)))
+    scatter_absolute.update_layout(
+        font=dict(family='Arial', size=14), yaxis_title="Zeit in Abschnitt [ms]", xaxis_title="Gesamte Wall-Time [ms]", legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01))
+    scatter_absolute.show()
+
+
+def relative_section_time_scatter():
+    scatter_relative = go.Figure()
+    for k, s in zip(relative_keys, scatter_symbols):
+        scatter_relative.add_trace(go.Scatter(
+            name=k, mode='markers', x=df['Gesamtzeit'], y=df[k], marker=dict(symbol=s)))
+    scatter_relative.update_layout(
+        yaxis_title='Anteil in %', xaxis_title="Gesamte Wall-Time [ms]", legend=dict(yanchor="top", y=.5, xanchor="right", x=.99))
+    scatter_relative.show()
+
+
+def taxi_rides_per_section_violin():
+    violin_taxis = make_subplots(rows=1, cols=2)
+    violin_taxis.add_trace(go.Violin(
+        y=df['n_taxis_init'], name='Initial', box_visible=True, meanline_visible=True), row=1, col=1)
+    violin_taxis.add_trace(go.Violin(
+        y=df['n_taxis_blacklist'], name='1. Verfügbark.', box_visible=True, meanline_visible=True), row=1, col=1)
+    violin_taxis.add_trace(go.Violin(
+        y=df['n_taxis_routing'], name='Routing', box_visible=True, meanline_visible=True), row=1, col=2)
+    violin_taxis.add_trace(go.Violin(
+        y=df['n_taxis_whitelist'], name='2. Verfügbark.', box_visible=True, meanline_visible=True), row=1, col=2)
+    violin_taxis.update_layout(
+        yaxis_title='Anzahl Taxifahrten', showlegend=False)
+    violin_taxis.show()
+
+
+def walltime_per_taxi_ride():
+    violin_per_taxi = make_subplots(rows=1, cols=2)
+    violin_per_taxi.add_trace(go.Violin(
+        y=df['bl_per_taxi'], name='1. Verfügbarkeitsprüfung', box_visible=True, meanline_visible=True), row=1, col=1)
+    violin_per_taxi.add_trace(go.Violin(
+        y=df['wl_per_taxi'], name='2. Verfügbarkeitsprüfung', box_visible=True, meanline_visible=True), row=1, col=2)
+    violin_per_taxi.update_layout(
+        yaxis_title='Zeit pro angefragtem Taxi [µs]', showlegend=False)
+    violin_per_taxi.show()
+
+
+# walltime_stacked_bar()
+# walltime_violin()
+# absolute_section_time_scatter()
+# relative_section_time_scatter()
+# taxi_rides_per_section_violin()
+# walltime_per_taxi_ride()
+
+# for c in list(df.columns):
+#     print(c)
+
+
+print(df.loc[1, 'itineraries'])
