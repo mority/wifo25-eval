@@ -8,5 +8,5 @@
 generate queries:
 
 ```shell
-./motis generate -n 1000 --first_day 2025-08-04 --last_day 2025-08-11 -m WALK,ODM -a --max_dist 50000 --max_travel_time 1440 --max_matching_distance 250 --fastest_direct_factor 1.6
+./motis generate -n 1000 --first_day 2025-08-11 --last_day 2025-08-18 --time_of_day 0 -m WALK,ODM -a --max_dist 50000 --max_travel_time 1440 --max_matching_distance 250 --fastest_direct_factor 1.6
 ```
