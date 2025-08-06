@@ -74,7 +74,17 @@ def uses_taxi(legs):
 
 
 df_itineraries['uses_taxi'] = df_itineraries['legs'].apply(uses_taxi)
-print(df_itineraries['uses_taxi'].value_counts())
+
+df_mam = pd.DataFrame({'pt': [0] * 1440, 'taxi': [0] * 1440, 'pt_by_taxi': [0] * 1440})
+for i in df_itineraries.itertuples():
+    for leg in i.legs:
+        col = 'pt_by_taxi' if i.uses_taxi else 'pt'
+        if leg['mode'] == 'ODM':
+            col = 'taxi'
+        for t in pd.date_range(start=leg['startTime'], end=leg['endTime'], freq='min', inclusive='left'):
+            local_t = t.tz_convert('Europe/Berlin').time()
+            mam = local_t.hour * 60 + local_t.minute
+            df_mam.at[mam, col] += 1
 
 
 def walltime_stacked_bar():
@@ -157,6 +167,19 @@ def walltime_per_taxi_ride():
         yaxis_title='Zeit pro angefragtem Taxi [µs]', showlegend=False)
     violin_per_taxi.show()
 
+def mam_fig():
+    mam_fig = px.bar(df_mam, y=['pt', 'pt_by_taxi'])
+    mam_fig.update_layout(bargap=0, xaxis_title="Tageszeit", xaxis_tickmode='array',
+                              xaxis_tickvals=list(range(0, 1440, 60)),
+                              xaxis_ticktext=['{:02d}:00'.format(x // 60) for x in range(0,1440,60)], xaxis_ticks='outside', yaxis_title="Anzahl Verbindungen", yaxis_dtick=1000,
+                              legend=dict(
+                                  traceorder="reversed",
+                                  yanchor="top",
+                                  y=0.99,
+                                  xanchor="left",
+                                  x=0.01
+                              ))
+    mam_fig.show()
 
 # walltime_stacked_bar()
 # walltime_violin()
@@ -164,6 +187,7 @@ def walltime_per_taxi_ride():
 # relative_section_time_scatter()
 # taxi_rides_per_section_violin()
 # walltime_per_taxi_ride()
+mam_fig()
 
 # for c in list(df.columns):
 #     print(c)
