@@ -1,4 +1,5 @@
-import json
+from load import load
+from util import uses_taxi
 import pandas as pd
 import math
 import plotly.express as px
@@ -8,13 +9,7 @@ import plotly.io as pio
 
 pio.templates.default = 'plotly_white'
 
-data = []
-
-with open("responses.txt") as f:
-    for l in f:
-        data.append(json.loads(l))
-
-df = pd.json_normalize(data)
+df = load()
 df.columns = df.columns.str.replace(r'debugOutput.', '')
 df.rename(
     columns={"mixing_time": "Mixing", "whitelist_time": "2. Verfügbarkeitsprüfung", "routing_time": "ÖV-Routing",
@@ -64,13 +59,6 @@ itineraries = []
 for row in df.itertuples():
     itineraries += row.itineraries
 df_itineraries = pd.DataFrame(itineraries)
-
-
-def uses_taxi(legs):
-    for leg in legs:
-        if leg['mode'] == 'ODM':
-            return True
-    return False
 
 
 df_itineraries['uses_taxi'] = df_itineraries['legs'].apply(uses_taxi)
