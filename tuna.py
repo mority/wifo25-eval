@@ -1,7 +1,4 @@
-from load import load
 from util import mam
-
-from datetime import time
 
 import pandas as pd
 
@@ -46,13 +43,4 @@ def tuna(itineraries: list) -> list[pd.Timedelta | None]:
         if not journey:
             break
         ret[mam(t)] = journey[1] - t
-        print(
-            "{}: {} -> {}, {}".format(
-                t.time(), journey[0].time(), journey[1].time(), journey[1] - t
-            )
-        )
     return ret
-
-
-df = load()
-df["tuna"] = df["itineraries"].apply(tuna)

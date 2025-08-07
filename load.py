@@ -1,6 +1,7 @@
 import json
 import pandas as pd
 
+
 def load():
     data = []
 
@@ -9,5 +10,8 @@ def load():
             data.append(json.loads(l))
 
     df = pd.json_normalize(data)
-    return df
 
+    for col_name in list(df.columns):
+        print(col_name)
+
+    return df
