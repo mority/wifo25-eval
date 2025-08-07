@@ -1,2 +1,5 @@
 .venv
 responses.txt
+scratch.py
+__pycache__/load.cpython-312.pyc
+__pycache__/util.cpython-312.pyc
