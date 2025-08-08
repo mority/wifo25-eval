@@ -46,27 +46,18 @@ def tuna(itineraries: list) -> list[pd.Timedelta | None]:
     return ret
 
 
-def delta_tuna(
+def normalized_delta_tuna(
     ref: list[pd.Timedelta | None], cmp: list[pd.Timedelta | None]
-) -> tuple[list[pd.Timedelta], list[pd.Timedelta], list[pd.Timedelta]]:
-    delta: list[pd.Timedelta] = []
-    improves_none: list[pd.Timedelta] = []
-    worsens_none: list[pd.Timedelta] = []
+) -> list[float]:
+    delta: list[float] = []
     for r, c in zip(ref, cmp):
         if not r is None and not c is None:
-            delta.append(c - r)
-            continue
+            delta.append((r - c) / r)
+        elif r is None and c is None:
+            delta.append(0)
+        elif r is None and not c is None:
+            delta.append(1)
+        else:
+            delta.append(-1)
 
-        if r is None and c is None:
-            delta.append(pd.Timedelta(0))
-            continue
-
-        if r is None and not c is None:
-            improves_none.append(pd.Timedelta(0) - c)
-            continue
-
-        if not r is None and c is None:
-            worsens_none.append(r)
-            continue
-
-    return delta, improves_none, worsens_none
+    return delta

@@ -1,7 +1,7 @@
 import pandas as pd
 
 from util import uses_taxi
-from tuna import tuna, delta_tuna
+from tuna import tuna, normalized_delta_tuna
 
 
 def prepare(df):
@@ -99,7 +99,7 @@ def prepare(df):
     df["tuna_pt"] = df["itineraries_pt"].apply(tuna)
 
     df["delta_tuna"] = df.apply(
-        lambda row: delta_tuna(row["tuna_pt"], row["tuna"]), axis=1
+        lambda row: normalized_delta_tuna(row["tuna_pt"], row["tuna"]), axis=1
     )
 
     return df_mam

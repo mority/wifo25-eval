@@ -216,10 +216,34 @@ def figures(df, df_mam):
         )
         mam_fig.show()
 
-    walltime_stacked_bar()
-    walltime_violin()
-    absolute_section_time_scatter()
-    relative_section_time_scatter()
-    taxi_rides_per_section_violin()
-    walltime_per_taxi_ride()
-    mam_fig()
+    def tuna_fig():
+        # for (
+        #     i,
+        #     x,
+        # ) in enumerate(zip(df.at[0, "tuna_pt"], df.at[0, "tuna"], df_delta_tuna.at[0])):
+        #     pt, taxi, delta = x
+        #     print(
+        #         "{:02d}:{:02d} | {} | {} | {}".format(i // 60, i % 60, pt, taxi, delta)
+        #     )
+
+        tuna_fig = px.scatter(x=list(range(1440)), y=df["delta_tuna"])
+        tuna_fig.update_layout(
+            bargap=0,
+            xaxis_title="Tageszeit",
+            xaxis_tickmode="array",
+            xaxis_tickvals=list(range(0, 1440, 120)),
+            xaxis_ticktext=["{:02d}:00".format(x // 60) for x in range(0, 1440, 120)],
+            xaxis_ticks="outside",
+            yaxis_title="normalized delta tuna",
+            showlegend=False,
+        )
+        tuna_fig.show()
+
+    # walltime_stacked_bar()
+    # walltime_violin()
+    # absolute_section_time_scatter()
+    # relative_section_time_scatter()
+    # taxi_rides_per_section_violin()
+    # walltime_per_taxi_ride()
+    # mam_fig()
+    tuna_fig()
