@@ -1,7 +1,7 @@
 import pandas as pd
 
 from util import uses_taxi
-from tuna import tuna
+from tuna import tuna, delta_tuna
 
 
 def prepare(df):
@@ -92,8 +92,14 @@ def prepare(df):
                 mam = local_t.hour * 60 + local_t.minute
                 df_mam.at[mam, col] += 1
 
-    df["itineraries_pt"] = filter(lambda i: not uses_taxi(i["legs"]), df["itineraries"])
     df["tuna"] = df["itineraries"].apply(tuna)
+    df["itineraries_pt"] = df["itineraries"].apply(
+        lambda l: list(filter(lambda i: not uses_taxi(i["legs"]), l))
+    )
     df["tuna_pt"] = df["itineraries_pt"].apply(tuna)
+
+    df["delta_tuna"] = df.apply(
+        lambda row: delta_tuna(row["tuna_pt"], row["tuna"]), axis=1
+    )
 
     return df_mam

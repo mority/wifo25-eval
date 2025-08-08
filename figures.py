@@ -195,7 +195,7 @@ def figures(df, df_mam):
             col=2,
         )
         violin_per_taxi.update_layout(
-            yaxis_title="Zeit pro angefragtem Taxi [µs]", showlegend=False
+            yaxis_title="Zeit pro angefragtem Taxi [ms]", showlegend=False
         )
         violin_per_taxi.show()
 
@@ -217,9 +217,9 @@ def figures(df, df_mam):
         mam_fig.show()
 
     walltime_stacked_bar()
-    # walltime_violin()
-    # absolute_section_time_scatter()
-    # relative_section_time_scatter()
-    # taxi_rides_per_section_violin()
-    # walltime_per_taxi_ride()
+    walltime_violin()
+    absolute_section_time_scatter()
+    relative_section_time_scatter()
+    taxi_rides_per_section_violin()
+    walltime_per_taxi_ride()
     mam_fig()

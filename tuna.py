@@ -1,5 +1,5 @@
 from util import mam
-
+from enum import Enum
 import pandas as pd
 
 service_start = pd.Timedelta(hours=4)
@@ -44,3 +44,29 @@ def tuna(itineraries: list) -> list[pd.Timedelta | None]:
             break
         ret[mam(t)] = journey[1] - t
     return ret
+
+
+def delta_tuna(
+    ref: list[pd.Timedelta | None], cmp: list[pd.Timedelta | None]
+) -> tuple[list[pd.Timedelta], list[pd.Timedelta], list[pd.Timedelta]]:
+    delta: list[pd.Timedelta] = []
+    improves_none: list[pd.Timedelta] = []
+    worsens_none: list[pd.Timedelta] = []
+    for r, c in zip(ref, cmp):
+        if not r is None and not c is None:
+            delta.append(c - r)
+            continue
+
+        if r is None and c is None:
+            delta.append(pd.Timedelta(0))
+            continue
+
+        if r is None and not c is None:
+            improves_none.append(pd.Timedelta(0) - c)
+            continue
+
+        if not r is None and c is None:
+            worsens_none.append(r)
+            continue
+
+    return delta, improves_none, worsens_none
