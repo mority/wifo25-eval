@@ -102,17 +102,23 @@ def prepare(df):
         lambda row: normalized_delta_tuna(row["tuna_pt"], row["tuna"]), axis=1
     )
 
-    print(df["delta_tuna"])
-
-    delta_tuna_stats = (
-        pd.DataFrame(np.vstack(df["delta_tuna"]))
-        .apply(
-            lambda col: np.append(
-                np.percentile(col, [10, 20, 30, 40, 50, 60, 70, 80, 90]), np.mean(col)
-            )
-        )
-        .T
+    delta_tuna = pd.DataFrame(np.vstack(df["delta_tuna"]))
+    delta_tuna.drop(
+        range(240),
+        axis=1,
+        inplace=True,
     )
+    delta_tuna.drop(
+        range(1320, 1440),
+        axis=1,
+        inplace=True,
+    )
+
+    delta_tuna_stats = delta_tuna.apply(
+        lambda col: np.append(
+            np.percentile(col, [10, 20, 30, 40, 50, 60, 70, 80, 90]), np.mean(col)
+        )
+    ).T
     delta_tuna_stats.columns = [
         "10%",
         "20%",
@@ -126,4 +132,4 @@ def prepare(df):
         "mean",
     ]
 
-    return df_mam, delta_tuna_stats
+    return df_mam, delta_tuna, delta_tuna_stats

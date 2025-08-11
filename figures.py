@@ -6,7 +6,7 @@ import plotly.io as pio
 
 
 def figures(df, additionals):
-    df_mam, delta_tuna_stats = additionals
+    df_mam, delta_tuna, delta_tuna_stats = additionals
 
     pio.templates.default = "plotly_white"
 
@@ -228,15 +228,24 @@ def figures(df, additionals):
         #         "{:02d}:{:02d} | {} | {} | {}".format(i // 60, i % 60, pt, taxi, delta)
         #     )
 
+        x = list(range(240, 1320)) * len(delta_tuna.index)
+        y = delta_tuna.to_numpy().flatten()
+
+        print(delta_tuna)
+        print(len(x))
+        print(len(y))
+
         tuna_fig = go.Figure(
             go.Histogram2d(
-                df["delta_tuna"],
+                x=x,
+                y=y,
                 autobinx=False,
                 xbins=dict(start=0, end=1440, size=30),
                 autobiny=False,
                 ybins=dict(start=0, end=1, size=0.05),
             )
         )
+        # tuna_fig.add_trace(go.)
         tuna_fig.update_layout(
             bargap=0,
             xaxis_title="Tageszeit",
@@ -249,11 +258,11 @@ def figures(df, additionals):
         )
         tuna_fig.show()
 
-    # walltime_stacked_bar()
-    # walltime_violin()
-    # absolute_section_time_scatter()
-    # relative_section_time_scatter()
-    # taxi_rides_per_section_violin()
-    # walltime_per_taxi_ride()
-    # mam_fig()
+    walltime_stacked_bar()
+    walltime_violin()
+    absolute_section_time_scatter()
+    relative_section_time_scatter()
+    taxi_rides_per_section_violin()
+    walltime_per_taxi_ride()
+    mam_fig()
     tuna_fig()
