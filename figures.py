@@ -5,7 +5,9 @@ from plotly.subplots import make_subplots
 import plotly.io as pio
 
 
-def figures(df, df_mam):
+def figures(df, additionals):
+    df_mam, delta_tuna_stats = additionals
+
     pio.templates.default = "plotly_white"
 
     quantiles = [0.25, 0.5, 0.75, 0.9, 0.99, 1]

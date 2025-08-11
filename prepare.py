@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 from util import uses_taxi
 from tuna import tuna, normalized_delta_tuna
@@ -102,4 +103,6 @@ def prepare(df):
         lambda row: normalized_delta_tuna(row["tuna_pt"], row["tuna"]), axis=1
     )
 
-    return df_mam
+    delta_tuna_stats = pd.DataFrame(np.vstack(df["delta_tuna"])).describe()
+
+    return df_mam, delta_tuna_stats
