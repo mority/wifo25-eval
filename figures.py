@@ -228,7 +228,15 @@ def figures(df, additionals):
         #         "{:02d}:{:02d} | {} | {} | {}".format(i // 60, i % 60, pt, taxi, delta)
         #     )
 
-        tuna_fig = px.scatter(x=list(range(1440)), y=df["delta_tuna"])
+        tuna_fig = go.Figure(
+            go.Histogram2d(
+                df["delta_tuna"],
+                autobinx=False,
+                xbins=dict(start=0, end=1440, size=30),
+                autobiny=False,
+                ybins=dict(start=0, end=1, size=0.05),
+            )
+        )
         tuna_fig.update_layout(
             bargap=0,
             xaxis_title="Tageszeit",
@@ -237,7 +245,7 @@ def figures(df, additionals):
             xaxis_ticktext=["{:02d}:00".format(x // 60) for x in range(0, 1440, 120)],
             xaxis_ticks="outside",
             yaxis_title="normalized delta tuna",
-            showlegend=False,
+            showlegend=True,
         )
         tuna_fig.show()
 

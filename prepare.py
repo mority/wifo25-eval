@@ -33,9 +33,8 @@ def prepare(df):
             pd.isnull(df["Gesamtzeit"]).sum()
         )
     )
-    print(
-        "Therefore, n is {}".format(len(df.index) - pd.isnull(df["Gesamtzeit"]).sum())
-    )
+    df.drop(df[pd.isnull(df.Gesamtzeit)].index, inplace=True)
+    print("After droppping these, n is {}".format(len(df.index)))
 
     df["Offset-Routing %"] = df["Offset-Routing"] / df["Gesamtzeit"] * 100
     df["1. Verfügbarkeitsprüfung %"] = (
@@ -103,6 +102,28 @@ def prepare(df):
         lambda row: normalized_delta_tuna(row["tuna_pt"], row["tuna"]), axis=1
     )
 
-    delta_tuna_stats = pd.DataFrame(np.vstack(df["delta_tuna"])).describe()
+    print(df["delta_tuna"])
+
+    delta_tuna_stats = (
+        pd.DataFrame(np.vstack(df["delta_tuna"]))
+        .apply(
+            lambda col: np.append(
+                np.percentile(col, [10, 20, 30, 40, 50, 60, 70, 80, 90]), np.mean(col)
+            )
+        )
+        .T
+    )
+    delta_tuna_stats.columns = [
+        "10%",
+        "20%",
+        "30%",
+        "40%",
+        "50%",
+        "60%",
+        "70%",
+        "80%",
+        "90%",
+        "mean",
+    ]
 
     return df_mam, delta_tuna_stats
