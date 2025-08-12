@@ -27,8 +27,8 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
-if os.path.isfile(args.queries):
-    print(args.queries + " already exists, quitting.")
+if os.path.isfile(args.responses):
+    print(args.responses + " already exists, quitting.")
     quit()
 
 n_queries = 0
