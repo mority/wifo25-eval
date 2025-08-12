@@ -1,4 +1,4 @@
 .venv
-responses.txt
+responses*.txt
 scratch.py
 __pycache__
