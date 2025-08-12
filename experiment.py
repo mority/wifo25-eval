@@ -1,21 +1,42 @@
+import argparse
 import os.path
 from tqdm import tqdm
 import requests
 
-motis_url = 'http://localhost:6499'
-qf_path = 'queries.txt'
-rf_path = 'responses.txt'
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "-u",
+    "--url",
+    help="the url of the MOTIS instance to send the queries to",
+    type=str,
+    default="http://localhost:6499",
+)
+parser.add_argument(
+    "-q",
+    "--queries",
+    help="file containing queries to send to the MOTIS server",
+    type=str,
+    default="queries.txt",
+)
+parser.add_argument(
+    "-r",
+    "--responses",
+    help="file to write the responses from the MOTIS server to ",
+    type=str,
+    default="responses.txt",
+)
+args = parser.parse_args()
 
-if os.path.isfile(rf_path):
-    print(rf_path + ' exists, quitting.')
+if os.path.isfile(args.queries):
+    print(args.queries + " already exists, quitting.")
     quit()
 
 n_queries = 0
-with open(qf_path, 'r') as qf:
+with open(args.queries, "r") as qf:
     for q in qf:
         n_queries += 1
 
-with open(qf_path, 'r') as qf, open(rf_path, 'a') as rf:
+with open(args.queries, "r") as qf, open(args.responses, "a") as rf:
     for q in tqdm(qf, total=n_queries):
-        r = requests.get(motis_url + q)
-        rf.write(r.text + '\n')
+        r = requests.get(args.url + q)
+        rf.write(r.text + "\n")
