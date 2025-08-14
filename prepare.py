@@ -34,7 +34,7 @@ def prepare(df):
         )
     )
     df.drop(df[pd.isnull(df.Gesamtzeit)].index, inplace=True)
-    print("After droppping these, n is {}".format(len(df.index)))
+    print("After dropping these, n is {}".format(len(df.index)))
 
     df["Offset-Routing %"] = df["Offset-Routing"] / df["Gesamtzeit"] * 100
     df["1. Verfügbarkeitsprüfung %"] = (
