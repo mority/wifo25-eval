@@ -2,6 +2,8 @@ import argparse
 import os.path
 from tqdm import tqdm
 import requests
+import json
+import pandas as pd
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -39,4 +41,15 @@ with open(args.queries, "r") as qf:
 with open(args.queries, "r") as qf, open(args.responses, "a") as rf:
     for q in tqdm(qf, total=n_queries):
         r = requests.get(args.url + q)
+        rj = json.loads(r.text)
+        for i in rj["itineraries"]:
+            dep = pd.Timestamp(i["startTime"])
+            arr = pd.Timestamp(i["endTime"])
+            if dep > arr:
+                print(
+                    "\nquery:\n{}\nitinerary:\n{}\nresponse:\n{}".format(
+                        q, json.dumps(i), json.dumps(rj)
+                    )
+                )
+                quit()
         rf.write(r.text + "\n")
