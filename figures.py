@@ -247,19 +247,28 @@ def figures(df, additionals):
         )
         tuna_hist.add_trace(
             go.Scatter(
-                x=list(range(1440)),
-                y=delta_tuna_stats["mean"],
-                line_color="black",
-                showlegend=False,
-            )
-        )
-        tuna_hist.add_trace(
-            go.Scatter(
                 x=x,
                 y=y,
                 mode="markers",
                 marker_size=1,
                 marker_color="black",
+                showlegend=False,
+            )
+        )
+        tuna_hist.add_trace(
+            go.Scatter(
+                x=list(range(1440)),
+                y=delta_tuna_stats["mean"],
+                line_color="white",
+                line_width=5,
+                showlegend=False,
+            )
+        )
+        tuna_hist.add_trace(
+            go.Scatter(
+                x=list(range(1440)),
+                y=delta_tuna_stats["mean"],
+                line_color="black",
                 showlegend=False,
             )
         )
