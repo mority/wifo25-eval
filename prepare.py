@@ -103,16 +103,6 @@ def prepare(df):
     )
 
     delta_tuna = pd.DataFrame(np.vstack(df["delta_tuna"]))
-    delta_tuna.drop(
-        range(240),
-        axis=1,
-        inplace=True,
-    )
-    delta_tuna.drop(
-        range(1320, 1440),
-        axis=1,
-        inplace=True,
-    )
 
     delta_tuna_stats = delta_tuna.apply(
         lambda col: np.append(

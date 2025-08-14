@@ -219,50 +219,68 @@ def figures(df, additionals):
         mam_fig.show()
 
     def tuna_fig():
-        # for (
-        #     i,
-        #     x,
-        # ) in enumerate(zip(df.at[0, "tuna_pt"], df.at[0, "tuna"], df_delta_tuna.at[0])):
-        #     pt, taxi, delta = x
-        #     print(
-        #         "{:02d}:{:02d} | {} | {} | {}".format(i // 60, i % 60, pt, taxi, delta)
-        #     )
-
-        x = list(range(240, 1320)) * len(delta_tuna.index)
-        y = delta_tuna.to_numpy().flatten()
-
-        print(delta_tuna)
-        print(len(x))
-        print(len(y))
-
-        tuna_fig = go.Figure(
-            go.Histogram2d(
-                x=x,
-                y=y,
-                autobinx=False,
-                xbins=dict(start=0, end=1440, size=30),
-                autobiny=False,
-                ybins=dict(start=0, end=1, size=0.05),
-            )
-        )
-        # tuna_fig.add_trace(go.)
-        tuna_fig.update_layout(
-            bargap=0,
+        tuna_line = px.line(delta_tuna_stats)
+        tuna_line.update_layout(
             xaxis_title="Tageszeit",
             xaxis_tickmode="array",
             xaxis_tickvals=list(range(0, 1440, 120)),
             xaxis_ticktext=["{:02d}:00".format(x // 60) for x in range(0, 1440, 120)],
             xaxis_ticks="outside",
-            yaxis_title="normalized delta tuna",
+            yaxis_title="Normalisierter Reisezeitvorteil",
             showlegend=True,
         )
-        tuna_fig.show()
+        tuna_line.show()
 
-    walltime_stacked_bar()
-    walltime_violin()
-    absolute_section_time_scatter()
-    relative_section_time_scatter()
-    taxi_rides_per_section_violin()
-    walltime_per_taxi_ride()
-    mam_fig()
+        x = list(range(1440)) * len(delta_tuna.index)
+        y = delta_tuna.to_numpy().flatten()
+
+        tuna_hist = go.Figure(
+            go.Histogram2d(
+                x=x,
+                y=y,
+                autobinx=False,
+                xbins=dict(start=0, end=1440, size=10),
+                autobiny=False,
+                ybins=dict(start=0, end=1.01, size=0.01),
+                colorscale="greys",
+            )
+        )
+        tuna_hist.add_trace(
+            go.Scatter(
+                x=list(range(1440)),
+                y=delta_tuna_stats["mean"],
+                line_color="black",
+                showlegend=False,
+            )
+        )
+        tuna_hist.add_trace(
+            go.Scatter(
+                x=x,
+                y=y,
+                mode="markers",
+                marker_size=1,
+                marker_color="black",
+                showlegend=False,
+            )
+        )
+        tuna_hist.update_layout(
+            xaxis_range=[0, 1440],
+            xaxis_title="Tageszeit",
+            xaxis_tickmode="array",
+            xaxis_tickvals=list(range(0, 1441, 120)),
+            yaxis_range=[0, 1.01],
+            xaxis_ticktext=["{:02d}:00".format(x // 60) for x in range(0, 1441, 120)],
+            xaxis_ticks="outside",
+            yaxis_title="Normalisierter Reisezeitvorteil",
+            showlegend=True,
+        )
+        tuna_hist.show()
+
+    # walltime_stacked_bar()
+    # walltime_violin()
+    # absolute_section_time_scatter()
+    # relative_section_time_scatter()
+    # taxi_rides_per_section_violin()
+    # walltime_per_taxi_ride()
+    # mam_fig()
     tuna_fig()
