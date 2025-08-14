@@ -277,10 +277,11 @@ def figures(df, additionals):
             xaxis_title="Tageszeit",
             xaxis_tickmode="array",
             xaxis_tickvals=list(range(0, 1441, 120)),
-            yaxis_range=[0, 1.01],
             xaxis_ticktext=["{:02d}:00".format(x // 60) for x in range(0, 1441, 120)],
             xaxis_ticks="outside",
+            yaxis_range=[0, 1.01],
             yaxis_title="Normalisierter Reisezeitvorteil",
+            yaxis_ticks="outside",
             showlegend=True,
         )
         tuna_hist.show()
