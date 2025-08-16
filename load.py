@@ -5,7 +5,7 @@ import pandas as pd
 def load():
     data = []
 
-    with open("responses-uniform.txt") as f:
+    with open("responses-10lines.txt") as f:
         for l in f:
             data.append(json.loads(l))
 

@@ -20,7 +20,7 @@ def prepare(df):
 
     df["query_id"] = list(range(len(df.index)))
 
-    df["Gesamtzeit"] = (
+    df["Gesamt"] = (
         df["Mixing"]
         + df["2. Verfügbarkeitsprüfung"]
         + df["ÖV-Routing"]
@@ -30,21 +30,21 @@ def prepare(df):
 
     print(
         "Responses without time since direct walk is below threshold of 5 minutes: {}".format(
-            pd.isnull(df["Gesamtzeit"]).sum()
+            pd.isnull(df["Gesamt"]).sum()
         )
     )
-    df.drop(df[pd.isnull(df.Gesamtzeit)].index, inplace=True)
+    df.drop(df[pd.isnull(df.Gesamt)].index, inplace=True)
     print("After dropping these, n is {}".format(len(df.index)))
 
-    df["Offset-Routing %"] = df["Offset-Routing"] / df["Gesamtzeit"] * 100
+    df["Offset-Routing %"] = df["Offset-Routing"] / df["Gesamt"] * 100
     df["1. Verfügbarkeitsprüfung %"] = (
-        df["1. Verfügbarkeitsprüfung"] / df["Gesamtzeit"] * 100
+        df["1. Verfügbarkeitsprüfung"] / df["Gesamt"] * 100
     )
-    df["ÖV-Routing %"] = df["ÖV-Routing"] / df["Gesamtzeit"] * 100
+    df["ÖV-Routing %"] = df["ÖV-Routing"] / df["Gesamt"] * 100
     df["2. Verfügbarkeitsprüfung %"] = (
-        df["2. Verfügbarkeitsprüfung"] / df["Gesamtzeit"] * 100
+        df["2. Verfügbarkeitsprüfung"] / df["Gesamt"] * 100
     )
-    df["Mixing %"] = df["Mixing"] / df["Gesamtzeit"] * 100
+    df["Mixing %"] = df["Mixing"] / df["Gesamt"] * 100
 
     df["n_taxis_init"] = (
         df["init_direct_odm_rides"]

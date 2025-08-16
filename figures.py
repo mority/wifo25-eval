@@ -8,7 +8,14 @@ import plotly.io as pio
 def figures(df, additionals):
     df_mam, delta_tuna, delta_tuna_stats = additionals
 
-    pio.templates.default = "plotly_white"
+    pio.templates["adjustments"] = go.layout.Template(
+        layout=dict(
+            font={"size": 20, "family": "Arial"},
+            xaxis=dict(title_font={"size": 20}),
+            yaxis=dict(title_font={"size": 20}),
+        )
+    )
+    pio.templates.default = "plotly_white+adjustments"
 
     quantiles = [0.25, 0.5, 0.75, 0.9, 0.99, 1]
     quantile_index = [
@@ -31,7 +38,7 @@ def figures(df, additionals):
     ]
 
     def walltime_stacked_bar():
-        df.sort_values(by="Gesamtzeit", ignore_index=True, inplace=True)
+        df.sort_values(by="Gesamt", ignore_index=True, inplace=True)
         stacked_bar = px.bar(
             df,
             y=[
@@ -64,22 +71,40 @@ def figures(df, additionals):
 
     def walltime_violin():
         violin_keys = [
-            "Gesamtzeit",
+            "Gesamt",
             "Offset-Routing",
             "1. Verfügbarkeitsprüfung",
             "ÖV-Routing",
             "2. Verfügbarkeitsprüfung",
-            "Mixing",
+            # "Mixing",
         ]
+        violin_names = {
+            "Gesamt": "Gesamt",
+            "Offset-Routing": "Offset-<br>Routing",
+            "1. Verfügbarkeitsprüfung": "1. Verfügbarkeits-<br>prüfung",
+            "ÖV-Routing": "ÖV-<br>Routing",
+            "2. Verfügbarkeitsprüfung": "2. Verfügbarkeits-<br>prüfung",
+        }
         violins = go.Figure()
         for k in violin_keys:
             df.sort_values(by=k, ignore_index=True, inplace=True)
             print("{} quantiles:".format(k))
             print(df[k].quantile(quantiles))
             violins.add_trace(
-                go.Violin(y=df[k], name=k, box_visible=True, meanline_visible=True)
+                go.Violin(
+                    y=df[k],
+                    name=violin_names[k],
+                    box_visible=True,
+                    meanline_visible=True,
+                    line_color="black",
+                    fillcolor="gainsboro",
+                    spanmode="hard",
+                )
             )
-        violins.update_layout(yaxis_title="Wall-Time [ms]", showlegend=False)
+        violins.update_layout(
+            yaxis=dict(title="Wall-Time [ms]", minallowed=0),
+            showlegend=False,
+        )
         violins.show()
 
     def absolute_section_time_scatter():
@@ -90,14 +115,14 @@ def figures(df, additionals):
             "2. Verfügbarkeitsprüfung",
             "Mixing",
         ]
-        df.sort_values(by="Gesamtzeit", ignore_index=True, inplace=True)
+        df.sort_values(by="Gesamt", ignore_index=True, inplace=True)
         scatter_absolute = go.Figure()
         for k, s in zip(absolute_keys, scatter_symbols):
             scatter_absolute.add_trace(
                 go.Scatter(
                     name=k,
                     mode="markers",
-                    x=df["Gesamtzeit"],
+                    x=df["Gesamt"],
                     y=df[k],
                     marker=dict(symbol=s),
                 )
@@ -117,7 +142,7 @@ def figures(df, additionals):
                 go.Scatter(
                     name=k,
                     mode="markers",
-                    x=df["Gesamtzeit"],
+                    x=df["Gesamt"],
                     y=df[k],
                     marker=dict(symbol=s),
                 )
@@ -234,17 +259,7 @@ def figures(df, additionals):
         x = list(range(1440)) * len(delta_tuna.index)
         y = delta_tuna.to_numpy().flatten()
 
-        tuna_hist = go.Figure(
-            go.Histogram2d(
-                x=x,
-                y=y,
-                autobinx=False,
-                xbins=dict(start=0, end=1440, size=10),
-                autobiny=False,
-                ybins=dict(start=0, end=1.01, size=0.01),
-                colorscale="greys",
-            )
-        )
+        tuna_hist = go.Figure()
         tuna_hist.add_trace(
             go.Scatter(
                 x=x,
@@ -253,6 +268,17 @@ def figures(df, additionals):
                 marker_size=1,
                 marker_color="black",
                 showlegend=False,
+            )
+        )
+        tuna_hist.add_trace(
+            go.Histogram2d(
+                x=x,
+                y=y,
+                autobinx=False,
+                xbins=dict(start=0, end=1440, size=30),
+                autobiny=False,
+                ybins=dict(start=-0.0125, end=1.0125, size=0.025),
+                colorscale="greys",
             )
         )
         tuna_hist.add_trace(
@@ -273,21 +299,31 @@ def figures(df, additionals):
             )
         )
         tuna_hist.update_layout(
-            xaxis_range=[0, 1440],
-            xaxis_title="Tageszeit",
-            xaxis_tickmode="array",
-            xaxis_tickvals=list(range(0, 1441, 120)),
-            xaxis_ticktext=["{:02d}:00".format(x // 60) for x in range(0, 1441, 120)],
-            xaxis_ticks="outside",
-            yaxis_range=[0, 1.01],
-            yaxis_title="Normalisierter Reisezeitvorteil",
-            yaxis_ticks="outside",
-            showlegend=True,
+            xaxis=dict(
+                range=[0, 1440],
+                title="Tageszeit",
+                tickmode="array",
+                tickvals=list(range(0, 1441, 240)),
+                ticktext=["{:02d}:00".format(x // 60) for x in range(0, 1441, 240)],
+                ticks="outside",
+                minor=dict(
+                    tickmode="array",
+                    tickvals=list(range(0, 1441, 60)),
+                    ticks="outside",
+                ),
+                showgrid=True,
+            ),
+            yaxis=dict(
+                range=[-0.0125, 1.0125],
+                title="Normalisierter Reisezeitvorteil",
+                ticks="outside",
+                showgrid=True,
+            ),
         )
         tuna_hist.show()
 
     # walltime_stacked_bar()
-    # walltime_violin()
+    walltime_violin()
     # absolute_section_time_scatter()
     # relative_section_time_scatter()
     # taxi_rides_per_section_violin()
