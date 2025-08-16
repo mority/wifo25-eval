@@ -99,6 +99,7 @@ def figures(df, additionals):
                     line_color="black",
                     fillcolor="gainsboro",
                     spanmode="hard",
+                    points=False,
                 )
             )
         violins.update_layout(
