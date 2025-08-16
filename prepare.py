@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-from util import uses_taxi
+from util import uses_taxi, is_direct_taxi
 from tuna import tuna, normalized_delta_tuna
 
 
@@ -76,6 +76,35 @@ def prepare(df):
     df_itineraries = pd.DataFrame(itineraries)
 
     df_itineraries["uses_taxi"] = df_itineraries["legs"].apply(uses_taxi)
+    df_itineraries["is_direct_taxi"] = df_itineraries["legs"].apply(is_direct_taxi)
+
+    n_itineraries_total = len(df_itineraries.index)
+    n_itineraries_uses_taxi = df_itineraries["uses_taxi"].value_counts()[True]
+    n_itineraries_direct_taxi = df_itineraries["is_direct_taxi"].value_counts()[True]
+    n_itineraries_pt_only = n_itineraries_total - n_itineraries_uses_taxi
+    n_itineraries_pt_taxi = n_itineraries_uses_taxi - n_itineraries_direct_taxi
+    percentage_itineraries_uses_taxi = (
+        n_itineraries_uses_taxi / n_itineraries_total * 100
+    )
+    percentage_itineraries_direct_taxi = (
+        n_itineraries_direct_taxi / n_itineraries_total * 100
+    )
+    percentage_itineraries_pt_only = n_itineraries_pt_only / n_itineraries_total * 100
+    percentage_itineraries_pt_taxi = n_itineraries_pt_taxi / n_itineraries_total * 100
+
+    print(
+        "itineraries total: {}\nitineraries pt-only: {} ({:.2f}%)\nitineraries uses_taxi: {} ({:.2f}%)\nitineraries pt-taxi: {} ({:.2f}%)\nitineraries taxi-only: {} ({:.2f}%)".format(
+            n_itineraries_total,
+            n_itineraries_pt_only,
+            percentage_itineraries_pt_only,
+            n_itineraries_uses_taxi,
+            percentage_itineraries_uses_taxi,
+            n_itineraries_pt_taxi,
+            percentage_itineraries_pt_taxi,
+            n_itineraries_direct_taxi,
+            percentage_itineraries_direct_taxi,
+        )
+    )
 
     df_mam = pd.DataFrame(
         {"pt": [0] * 1440, "taxi": [0] * 1440, "pt_by_taxi": [0] * 1440}

@@ -8,5 +8,9 @@ def uses_taxi(legs):
     return False
 
 
+def is_direct_taxi(legs):
+    return len(legs) == 1 and uses_taxi(legs)
+
+
 def mam(t: pd.Timestamp) -> int:
     return t.hour * 60 + t.minute
