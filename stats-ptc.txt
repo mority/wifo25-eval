@@ -1,0 +1,48 @@
+Responses without time since direct walk is below threshold of 5 minutes: 3
+After dropping these, n is 997
+responses without pt: 195/997 (19.56%)
+itineraries total: 23913
+itineraries pt-only: 11287 (47.20%)
+itineraries uses_taxi: 12626 (52.80%)
+itineraries pt-taxi: 1991 (8.33%)
+itineraries taxi-only: 10635 (44.47%)
+Gesamt quantiles:
+0.25     530.00
+0.50     750.00
+0.75    1080.00
+0.90    2241.40
+0.99    4883.52
+1.00    6197.00
+Name: Gesamt, dtype: float64
+Offset-Routing quantiles:
+0.25      16.00
+0.50      68.00
+0.75     216.00
+0.90     358.00
+0.99     847.96
+1.00    1463.00
+Name: Offset-Routing, dtype: float64
+1. Verfügbarkeitsprüfung quantiles:
+0.25      59.00
+0.50     105.00
+0.75     152.00
+0.90     202.00
+0.99     325.28
+1.00    1058.00
+Name: 1. Verfügbarkeitsprüfung, dtype: float64
+ÖV-Routing quantiles:
+0.25     106.00
+0.50     194.00
+0.75     273.00
+0.90    1616.80
+0.99    4223.52
+1.00    4944.00
+Name: ÖV-Routing, dtype: float64
+2. Verfügbarkeitsprüfung quantiles:
+0.25    241.00
+0.50    283.00
+0.75    345.00
+0.90    393.00
+0.99    462.24
+1.00    910.00
+Name: 2. Verfügbarkeitsprüfung, dtype: float64
