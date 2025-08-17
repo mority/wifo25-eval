@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-from util import uses_taxi, is_direct_taxi
+from util import uses_taxi, is_direct_taxi, without_pt
 from tuna import tuna, normalized_delta_tuna
 
 
@@ -71,13 +71,22 @@ def prepare(df):
     df["wl_per_taxi"] = df["2. Verfügbarkeitsprüfung"] / df["n_taxis_routing"]
 
     itineraries = []
+    n_responses_without_pt = 0
     for row in df.itertuples():
         itineraries += row.itineraries
-    df_itineraries = pd.DataFrame(itineraries)
+        if without_pt(row.itineraries):
+            n_responses_without_pt += 1
+    print(
+        "responses without pt: {}/{} ({:.2f}%)".format(
+            n_responses_without_pt,
+            len(df.index),
+            n_responses_without_pt / len(df.index) * 100,
+        )
+    )
 
+    df_itineraries = pd.DataFrame(itineraries)
     df_itineraries["uses_taxi"] = df_itineraries["legs"].apply(uses_taxi)
     df_itineraries["is_direct_taxi"] = df_itineraries["legs"].apply(is_direct_taxi)
-
     n_itineraries_total = len(df_itineraries.index)
     n_itineraries_uses_taxi = df_itineraries["uses_taxi"].value_counts()[True]
     n_itineraries_direct_taxi = df_itineraries["is_direct_taxi"].value_counts()[True]
