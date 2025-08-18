@@ -19,5 +19,12 @@ def without_pt(itineraries):
     return True
 
 
+def without_taxi(itineraries):
+    for i in itineraries:
+        if uses_taxi(i["legs"]):
+            return False
+    return True
+
+
 def mam(t: pd.Timestamp) -> int:
     return t.hour * 60 + t.minute

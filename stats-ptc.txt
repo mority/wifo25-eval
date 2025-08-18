@@ -1,6 +1,8 @@
 Responses without time since direct walk is below threshold of 5 minutes: 3
 After dropping these, n is 997
+empty responses: 5/997 (0.50%)
 responses without pt: 195/997 (19.56%)
+responses without taxi: 15/997 (1.50%)
 itineraries total: 23913
 itineraries pt-only: 11287 (47.20%)
 itineraries uses_taxi: 12626 (52.80%)
