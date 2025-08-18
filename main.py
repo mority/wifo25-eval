@@ -3,13 +3,12 @@ from prepare import prepare
 from figures import walltime, tuna
 import pandas as pd
 
-df_uni: pd.DataFrame = load("responses-uni.txt")
-df_ptc: pd.DataFrame = load("responses-ptc.txt")
 
-print("preparing uni")
-additionals_uni = prepare(df_uni)
-print("preparing ptc")
-additionals_ptc = prepare(df_ptc)
+df_uni = load("responses-uni.txt")
+df_ptc = load("responses-ptc.txt")
+
+additionals_uni = prepare(df_uni, "stats-uni.txt")
+additionals_ptc = prepare(df_ptc, "stats-ptc.txt")
 
 df = pd.concat([df_uni, df_ptc])
 print(
@@ -19,5 +18,5 @@ print(
 )
 walltime(df)
 
-tuna(df_uni, additionals_uni)
-tuna(df_ptc, additionals_ptc)
+tuna(df_uni, additionals_uni, "tuna_uni.png")
+tuna(df_ptc, additionals_ptc, "tuna_ptc.png")

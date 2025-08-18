@@ -2,6 +2,8 @@ import math
 import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io as pio
+import kaleido
+import asyncio
 
 
 def set_template():
@@ -77,8 +79,6 @@ def walltime(df):
     violins = go.Figure()
     for k in violin_keys:
         df.sort_values(by=k, ignore_index=True, inplace=True)
-        print("{} quantiles:".format(k))
-        print(df[k].quantile(quantiles))
         violins.add_trace(
             go.Violin(
                 y=df[k],
@@ -96,9 +96,10 @@ def walltime(df):
         showlegend=False,
     )
     violins.show()
+    violins.write_image("walltime_violins.png", scale=2, width=800, height=600)
 
 
-def tuna(df, additionals):
+def tuna(df, additionals, file_name):
     df_mam, delta_tuna, delta_tuna_stats = additionals
     set_template()
 
@@ -178,4 +179,13 @@ def tuna(df, additionals):
             showgrid=True,
         ),
     )
-    tuna_hist.show()
+
+    async def write_image():
+        async with kaleido.Kaleido(n=16, timeout=3600) as k:
+            await k.write_fig(
+                tuna_hist,
+                path="./{}".format(file_name),
+                opts=dict(format="png", scale=2, width=800, height=600),
+            )
+
+    asyncio.run(write_image())
